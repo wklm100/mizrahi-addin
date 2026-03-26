@@ -16,9 +16,9 @@
   <Description DefaultValue="Numérotation des pièces et paragraphes pour le Cabinet d'Avocat Mizrahi." />
 
   <!-- Icônes (remplacer par vos URLs réelles) -->
-  <IconUrl DefaultValue="https://YOUR-GITHUB-PAGES-URL/icon-32.png" />
-  <HighResolutionIconUrl DefaultValue="https://YOUR-GITHUB-PAGES-URL/icon-64.png" />
-  <SupportUrl DefaultValue="https://YOUR-GITHUB-PAGES-URL" />
+  <IconUrl DefaultValue="https://https://wklm100.github.io/mizrahi-addin/icon-32.png" />
+  <HighResolutionIconUrl DefaultValue="https://https://wklm100.github.io/mizrahi-addin/icon-64.png" />
+  <SupportUrl DefaultValue="https://https://wklm100.github.io/mizrahi-addin" />
 
   <!-- ═══ EXIGENCES ═══ -->
   <Requirements>
@@ -34,7 +34,7 @@
 
   <!-- ═══ PAGE PRINCIPALE ═══ -->
   <DefaultSettings>
-    <SourceLocation DefaultValue="https://YOUR-GITHUB-PAGES-URL/taskpane.html" />
+    <SourceLocation DefaultValue="https://https://wklm100.github.io/mizrahi-addin/taskpane.html" />
   </DefaultSettings>
 
   <!-- ═══ PERMISSIONS ═══ -->
@@ -93,14 +93,14 @@
 
     <Resources>
       <bt:Images>
-        <bt:Image id="Icon.16x16" DefaultValue="https://YOUR-GITHUB-PAGES-URL/icon-16.png" />
-        <bt:Image id="Icon.32x32" DefaultValue="https://YOUR-GITHUB-PAGES-URL/icon-32.png" />
-        <bt:Image id="Icon.80x80" DefaultValue="https://YOUR-GITHUB-PAGES-URL/icon-80.png" />
+        <bt:Image id="Icon.16x16" DefaultValue="https://https://wklm100.github.io/mizrahi-addin/icon-16.png" />
+        <bt:Image id="Icon.32x32" DefaultValue="https://https://wklm100.github.io/mizrahi-addin/icon-32.png" />
+        <bt:Image id="Icon.80x80" DefaultValue="https://https://wklm100.github.io/mizrahi-addin/icon-80.png" />
       </bt:Images>
       <bt:Urls>
-        <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://YOUR-GITHUB-PAGES-URL" />
-        <bt:Url id="Commands.Url"            DefaultValue="https://YOUR-GITHUB-PAGES-URL/taskpane.html" />
-        <bt:Url id="Taskpane.Url"            DefaultValue="https://YOUR-GITHUB-PAGES-URL/taskpane.html" />
+        <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://https://wklm100.github.io/mizrahi-addin" />
+        <bt:Url id="Commands.Url"            DefaultValue="https://https://wklm100.github.io/mizrahi-addin/taskpane.html" />
+        <bt:Url id="Taskpane.Url"            DefaultValue="https://https://wklm100.github.io/mizrahi-addin/taskpane.html" />
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="GetStarted.Title"         DefaultValue="Cabinet Mizrahi — Pièces &amp; Paragraphes" />
