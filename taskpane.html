@@ -1,30 +1,760 @@
-Cabinet Mizrahi
-AVOCAT
-Pièces & Numérotation · v2.0
-⚖ Pièces
-¶ Paragraphes
-INSÉRER UNE PIÈCE
-Mode opératoire : sélectionnez le texte qui deviendra le titre, puis cliquez Pièce depuis sélection.
-Résultat : un nouveau paragraphe « Pièce n° X - titre » est inséré en dessous, aligné à droite, gras, Times 12.
-⚖
-Pièce depuis sélection
-Insère « Pièce n°X - [texte sélectionné] » · ⌃⌥K
-○
-Pièce vide
-Insère « Pièce n°X - » sans titre · ⌃⌥P
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cabinet Mizrahi — Pièces & Paragraphes</title>
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Mono:wght@300;400&display=swap');
+    :root {
+      --noir:      #1a1814;
+      --encre:     #2c2820;
+      --or:        #b8965a;
+      --or-pale:   #d4b07a;
+      --parchemin: #f5f0e8;
+      --beige:     #ede8de;
+      --gris:      #8a8278;
+      --rouge:     #8b1c1c;
+      --vert:      #1e4d35;
+      --bordure:   #c8b88a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Mono', monospace; background: var(--parchemin); color: var(--encre); font-size: 12px; }
 
-BORDEREAU DES PIÈCES
-👁
-Prévisualiser le bordereau
-Liste toutes les pièces du document avant insertion
+    .header { background: var(--noir); padding: 14px 16px 10px; border-bottom: 2px solid var(--or); }
+    .header-top { display: flex; align-items: baseline; gap: 8px; }
+    .cabinet-name { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 600; color: var(--or-pale); letter-spacing: .02em; }
+    .cabinet-sub  { font-size: 9px; color: var(--gris); letter-spacing: .15em; text-transform: uppercase; }
+    .version-badge{ margin-top: 4px; font-size: 9px; color: var(--or); opacity:.6; letter-spacing:.1em; }
 
-RENUMÉROTATION
-🔄
-Renuméroter toutes les pièces
-Recalcule la séquence entière du document · ⌃⌥R
+    .tabs { display: flex; background: var(--encre); border-bottom: 1px solid var(--or); }
+    .tab {
+      flex: 1; padding: 9px 4px 7px; text-align: center; cursor: pointer;
+      font-family: 'Cormorant Garamond', serif; font-size: 13px; font-weight: 500;
+      color: var(--gris); border-bottom: 2px solid transparent; transition: all .2s; user-select: none;
+    }
+    .tab.active { color: var(--or-pale); border-bottom-color: var(--or); background: rgba(184,150,90,.06); }
+    .tab:hover:not(.active) { color: var(--beige); }
 
-Initialisation…
+    .panel { display: none; padding: 14px 14px 54px; }
+    .panel.active { display: block; }
 
+    .section-title {
+      font-family: 'Cormorant Garamond', serif; font-size: 13px; font-weight: 600;
+      color: var(--or); letter-spacing: .05em; text-transform: uppercase;
+      margin: 14px 0 8px; padding-bottom: 5px; border-bottom: 1px solid var(--bordure);
+      display: flex; align-items: center; gap: 7px;
+    }
+    .section-title:first-child { margin-top: 0; }
+    .section-title::before { content:''; display:inline-block; width:3px; height:13px; background:var(--or); border-radius:1px; }
+
+    .btn-group { display: flex; flex-direction: column; gap: 7px; margin-bottom: 4px; }
+    .btn-row    { display: flex; gap: 7px; margin-bottom: 7px; }
+
+    .btn {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+      border: 1px solid var(--bordure); border-radius: 3px; background: white;
+      color: var(--encre); font-family: 'DM Mono', monospace; font-size: 11px;
+      cursor: pointer; transition: all .15s; text-align: left; width: 100%;
+    }
+    .btn:hover  { background: var(--beige); border-color: var(--or); }
+    .btn:active { transform: scale(.99); }
+    .btn.half   { flex: 1; width: auto; }
+    .btn.primary { background: var(--or); color: white; border-color: var(--or); }
+    .btn.primary:hover { background: var(--or-pale); }
+    .btn.danger  { border-color: #c8a0a0; color: var(--rouge); }
+    .btn.danger:hover  { background: #fdf0f0; border-color: var(--rouge); }
+    .btn.success { border-color: #a0c0b0; color: var(--vert); }
+    .btn.success:hover { background: #f0fdf6; border-color: var(--vert); }
+    .btn-icon { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
+    .btn-text { flex: 1; }
+    .btn-desc { font-size: 9px; color: var(--gris); margin-top: 2px; }
+    .btn.primary .btn-desc { color: rgba(255,255,255,.65); }
+    .btn.danger  .btn-desc { color: #b07070; }
+    .btn.success .btn-desc { color: #5a9070; }
+
+    /* Grille niveaux 1-6 */
+    .niveau-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-bottom: 8px; }
+    .niveau-btn {
+      padding: 9px 2px 7px; border: 1px solid var(--bordure); border-radius: 3px;
+      background: white; color: var(--encre); font-family: 'DM Mono', monospace;
+      font-size: 10px; cursor: pointer; text-align: center; transition: all .15s; line-height: 1.3;
+    }
+    .niveau-btn:hover  { background: var(--beige); border-color: var(--or); }
+    .niveau-btn:active { background: var(--or); color: white; }
+    .nb-num   { display: block; font-size: 14px; font-family: 'Cormorant Garamond', serif; color: var(--or); font-weight: 600; }
+    .nb-label { display: block; font-size: 7.5px; color: var(--gris); margin-top: 1px; }
+    .niveau-btn.cont { background: var(--encre); border-color: var(--encre); }
+    .niveau-btn.cont .nb-num   { color: var(--or-pale); }
+    .niveau-btn.cont .nb-label { color: #666; }
+    .niveau-btn.cont:hover { background: #3a3530; }
+    .niveau-btn.cont:active { background: var(--or); }
+
+    /* Tableau exemple niveaux */
+    .niv-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 10px; }
+    .niv-table td { padding: 3px 6px; border-bottom: 1px solid rgba(200,184,138,.3); }
+    .niv-table .niv-n   { color: var(--or); width: 28px; }
+    .niv-table .niv-fmt { font-family: 'DM Mono', monospace; color: var(--encre); }
+    .niv-table .niv-ex  { color: var(--gris); font-size: 9px; }
+
+    /* Options box */
+    .options-box { background: white; border: 1px solid var(--bordure); border-radius: 3px; padding: 10px 12px; margin-bottom: 10px; }
+    .field-label { font-size: 10px; color: var(--gris); margin-bottom: 3px; letter-spacing: .05em; }
+    input[type="text"] {
+      border: 1px solid var(--bordure); border-radius: 2px; padding: 4px 7px;
+      font-family: 'DM Mono', monospace; font-size: 11px; color: var(--encre);
+      background: var(--parchemin); width: 100%; margin-bottom: 0;
+    }
+    input[type="text"]:focus { outline: none; border-color: var(--or); }
+
+    /* Info box */
+    .info-box {
+      background: rgba(184,150,90,.07); border: 1px solid var(--bordure);
+      border-left: 3px solid var(--or); border-radius: 2px;
+      padding: 7px 10px; margin-bottom: 10px; font-size: 10px; color: var(--gris); line-height: 1.6;
+    }
+    .info-box b { color: var(--encre); }
+
+    /* Bordereau preview */
+    .bordereau-preview {
+      background: white; border: 1px solid var(--bordure); border-radius: 3px;
+      padding: 10px; margin-top: 8px; max-height: 180px; overflow-y: auto;
+      font-size: 10px; line-height: 1.8; color: var(--encre); display: none;
+    }
+    .bordereau-preview.visible { display: block; }
+    .bordereau-row { padding: 2px 0; border-bottom: 1px dotted var(--bordure); font-size: 10px; }
+    .bordereau-row:last-child { border-bottom: none; }
+    .bordereau-actions { display: flex; gap: 6px; margin-top: 8px; }
+    .btn-small {
+      flex: 1; padding: 6px 8px; font-size: 10px; border: 1px solid var(--bordure);
+      border-radius: 2px; background: white; color: var(--encre);
+      cursor: pointer; font-family: 'DM Mono', monospace; transition: all .15s; text-align: center;
+    }
+    .btn-small:hover { background: var(--beige); }
+    .btn-small.primary { background: var(--or); color: white; border-color: var(--or); }
+    .btn-small.primary:hover { background: var(--or-pale); }
+
+    .sep { border: none; border-top: 1px solid var(--bordure); margin: 12px 0; opacity: .4; }
+
+    /* Status bar */
+    .status-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--noir); border-top: 1px solid var(--or);
+      padding: 7px 14px; font-size: 10px; min-height: 34px;
+      display: flex; align-items: center; gap: 8px; z-index: 100;
+    }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gris); flex-shrink: 0; transition: background .3s; }
+    .status-dot.ok  { background: #5ab885; }
+    .status-dot.err { background: var(--rouge); }
+    .status-dot.run { background: var(--or); animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .status-text  { color: var(--beige); flex: 1; }
+    .status-count { color: var(--or); font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <span class="cabinet-name">Cabinet Mizrahi</span>
+    <span class="cabinet-sub">Avocat</span>
+  </div>
+  <div class="version-badge">Pièces &amp; Numérotation · v2.0</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('pieces')">⚖ Pièces</div>
+  <div class="tab" onclick="switchTab('paragraphes')">¶ Paragraphes</div>
+</div>
+
+<!-- ═══════════════════════════ PIÈCES ═══════════════════════════ -->
+<div id="panel-pieces" class="panel active">
+
+  <div class="section-title">Insérer une pièce</div>
+
+  <div class="info-box">
+    <b>Mode opératoire :</b> sélectionnez le texte qui deviendra le titre,
+    puis cliquez <b>Pièce depuis sélection</b>.<br>
+    Résultat : un nouveau paragraphe <b>«&nbsp;Pièce n°&nbsp;X&nbsp;-&nbsp;titre&nbsp;»</b>
+    est inséré en dessous, aligné à droite, gras, Times 12.
+  </div>
+
+  <div class="btn-group">
+    <button class="btn primary" onclick="piece_DepuisSelection()">
+      <span class="btn-icon">⚖</span>
+      <span class="btn-text">
+        Pièce depuis sélection
+        <div class="btn-desc">Insère «&nbsp;Pièce n°X - [texte sélectionné]&nbsp;» · ⌃⌥K</div>
+      </span>
+    </button>
+    <button class="btn" onclick="piece_Vide()">
+      <span class="btn-icon">○</span>
+      <span class="btn-text">
+        Pièce vide
+        <div class="btn-desc">Insère «&nbsp;Pièce n°X -&nbsp;» sans titre · ⌃⌥P</div>
+      </span>
+    </button>
+  </div>
+
+  <hr class="sep">
+  <div class="section-title">Bordereau des pièces</div>
+
+  <div class="btn-group">
+    <button class="btn success" onclick="previsualiserBordereau()">
+      <span class="btn-icon">👁</span>
+      <span class="btn-text">
+        Prévisualiser le bordereau
+        <div class="btn-desc">Liste toutes les pièces du document avant insertion</div>
+      </span>
+    </button>
+  </div>
+
+  <div id="bordereau-preview" class="bordereau-preview">
+    <div id="bordereau-list"></div>
+    <div class="bordereau-actions">
+      <button class="btn-small" onclick="hideBordereau()">Annuler</button>
+      <button class="btn-small primary" onclick="insererBordereau()">Insérer · ⌃⌥B</button>
+    </div>
+  </div>
+
+  <hr class="sep">
+  <div class="section-title">Renumérotation</div>
+
+  <div class="btn-group">
+    <button class="btn" onclick="renumerotation_Pieces()">
+      <span class="btn-icon">🔄</span>
+      <span class="btn-text">
+        Renuméroter toutes les pièces
+        <div class="btn-desc">Recalcule la séquence entière du document · ⌃⌥R</div>
+      </span>
+    </button>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════ PARAGRAPHES ═══════════════════════════ -->
+<div id="panel-paragraphes" class="panel">
+
+  <div class="section-title">Nouveau numéro · niveaux 1–6</div>
+
+  <div class="info-box">
+    Placez le curseur dans un paragraphe (ou sélectionnez-en plusieurs),
+    puis choisissez le niveau. Chaque bouton <b>réinitialise</b> le compteur.
+  </div>
+
+  <div class="niveau-grid" id="grid-std"></div>
+
+  <hr class="sep">
+  <div class="section-title">Continuer · niveaux 1–6</div>
+
+  <div class="info-box">
+    Poursuit la séquence <b>existante</b> au niveau choisi, sans repartir de 1.
+  </div>
+
+  <div class="niveau-grid" id="grid-cont"></div>
+
+  <hr class="sep">
+  <div class="section-title">Formats des niveaux</div>
+
+  <table class="niv-table">
+    <tr><td class="niv-n">N1</td><td class="niv-fmt">%1</td><td class="niv-ex">1. → 2. → 3.</td></tr>
+    <tr><td class="niv-n">N2</td><td class="niv-fmt">%1.%2</td><td class="niv-ex">1.1 → 1.2 → 2.1</td></tr>
+    <tr><td class="niv-n">N3</td><td class="niv-fmt">%1.%2.%3</td><td class="niv-ex">1.1.1 → 1.1.2</td></tr>
+    <tr><td class="niv-n">N4</td><td class="niv-fmt">%1.%2.%3.%4</td><td class="niv-ex">1.1.1.1</td></tr>
+    <tr><td class="niv-n">N5</td><td class="niv-fmt">%1.%2.%3.%4.%5</td><td class="niv-ex">1.1.1.1.1</td></tr>
+    <tr><td class="niv-n">N6</td><td class="niv-fmt">%1.%2.%3.%4.%5.%6</td><td class="niv-ex">1.1.1.1.1.1</td></tr>
+  </table>
+
+  <hr class="sep">
+  <div class="section-title">Navigation &amp; suppression</div>
+
+  <div class="btn-row">
+    <button class="btn half" onclick="niveauMonter()">
+      <span class="btn-icon">↑</span>
+      <span class="btn-text">Monter<div class="btn-desc">⌃⌥M — ListOutdent</div></span>
+    </button>
+    <button class="btn half" onclick="niveauDescendre()">
+      <span class="btn-icon">↓</span>
+      <span class="btn-text">Descendre<div class="btn-desc">⌃⌥D — ListIndent</div></span>
+    </button>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn danger" onclick="clearNumbering()">
+      <span class="btn-icon">✕</span>
+      <span class="btn-text">
+        Supprimer la numérotation
+        <div class="btn-desc">Retire la liste du paragraphe · ⌃⌥S</div>
+      </span>
+    </button>
+  </div>
+
+</div>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <div class="status-dot" id="status-dot"></div>
+  <div class="status-text"  id="status-text">Initialisation…</div>
+  <div class="status-count" id="status-count"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CONSTANTES — fidèles au code VBA
+// ═══════════════════════════════════════════════════════════════
+const SEP        = " - ";                     // Private Const SEP
+const MARQUEUR   = "Piece_";                  // Private Const MARQUEUR
+// "Pièce n° " — Chr(143)=è, Chr(161)=° sur Mac
+const PREFIX_PIE = "Pi\u00e8ce n\u00b0 ";    // "Pièce n° "
+
+// Formats hiérarchiques (ListLevels VBA)
+const LEVEL_FMT  = ['1.','1.1','1.1.1','1.1.1.1','1.1.1.1.1','1.1.1.1.1.1'];
+
+// ═══════════════════════════════════════════════════════════════
+// OFFICE INIT
+// ═══════════════════════════════════════════════════════════════
+Office.onReady(function(info) {
+  buildNiveauGrids();
+  if (info.host === Office.HostType.Word) {
+    setOk('Prêt');
+  } else {
+    setErr('Ouvrir dans Word');
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// UI
+// ═══════════════════════════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const idx = tab === 'pieces' ? 0 : 1;
+  document.querySelectorAll('.tab')[idx].classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+function setStatus(state, msg, count) {
+  document.getElementById('status-dot').className   = 'status-dot ' + (state||'');
+  document.getElementById('status-text').textContent  = msg   || '';
+  document.getElementById('status-count').textContent = count || '';
+}
+const setOk  = (m, c) => setStatus('ok',  m, c);
+const setErr = (m)    => setStatus('err', m);
+const setRun = (m)    => setStatus('run', m);
+
+// ═══════════════════════════════════════════════════════════════
+// UTILITAIRES — détection et parsing des lignes pièce
+// Logique VBA : Left(s,2)="Pi" AND InStr(s, Chr(161))>0
+// ═══════════════════════════════════════════════════════════════
+function nettoyerTexte(t) {
+  return t.replace(/\r/g,' ').replace(/\n/g,' ').replace(/\u000B/g,' ')
+          .replace(/\u0007/g,' ').replace(/  +/g,' ').trim();
+}
+
+function estLignePiece(t) {
+  // Commence par "Pi" ET contient "°" (Chr 161)
+  const s = nettoyerTexte(t);
+  return s.startsWith('Pi') && s.includes('\u00b0');
+}
+
+function extraireNumero(t) {
+  // Cherche le numéro après "n° "
+  const m = t.match(/n\u00b0\s*(\d+)/i);
+  return m ? parseInt(m[1]) : 0;
+}
+
+function extraireTitre(t) {
+  // Retire "Pièce n° X - " ou "Pièce n° X"
+  return t.replace(/^Pi\u00e8ce\s+n\u00b0\s*\d+\s*-?\s*/i, '').trim();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CompterPiecesDocument — équivalent VBA via max des signets Piece_N
+// En JS : on parcourt les paragraphes et trouve le max
+// ═══════════════════════════════════════════════════════════════
+async function compterPiecesDocument(ctx) {
+  const paras = ctx.document.body.paragraphs;
+  paras.load('items/text');
+  await ctx.sync();
+  let maxN = 0;
+  for (const p of paras.items) {
+    if (estLignePiece(p.text)) {
+      const n = extraireNumero(p.text);
+      if (n > maxN) maxN = n;
+    }
+  }
+  return maxN;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PIECE_DEPUISSELECTION — Ctrl+Option+K
+// VBA : copie le texte sélectionné dans un doc temp pour nettoyer,
+//       insère un nouveau §, droite, gras, "Pièce n° N - titre",
+//       pose un signet Piece_N
+// ═══════════════════════════════════════════════════════════════
+async function piece_DepuisSelection() {
+  setRun('Insertion de la pièce…');
+  try {
+    await Word.run(async ctx => {
+      const sel = ctx.document.getSelection();
+      sel.load('text,isEmpty');
+      await ctx.sync();
+
+      if (sel.isEmpty) {
+        setErr('Sélectionnez du texte avant d\'utiliser cette fonction');
+        return;
+      }
+
+      // Nettoyage du texte (équivalent des Replace + Trim VBA)
+      const txt = nettoyerTexte(sel.text);
+      if (!txt) { setErr('La sélection est vide'); return; }
+
+      // Compter les pièces existantes
+      const n = await compterPiecesDocument(ctx) + 1;
+
+      // Texte de la pièce : "Pièce n° N - titre"
+      const textePiece = PREFIX_PIE + n + SEP + txt;
+
+      // Insérer un nouveau paragraphe APRÈS la fin de la sélection
+      // (équivalent VBA : rIns.Collapse wdCollapseEnd → TypeParagraph)
+      const nouvPara = sel.insertParagraph(textePiece, Word.InsertLocation.after);
+
+      // Formatage : droite, gras, Times New Roman 12
+      nouvPara.alignment   = Word.Alignment.right;
+      nouvPara.font.bold   = true;
+      nouvPara.font.name   = 'Times New Roman';
+      nouvPara.font.size   = 12;
+
+      // Paragraphe vide après (retour alignement gauche, non gras)
+      const apres = nouvPara.insertParagraph('', Word.InsertLocation.after);
+      apres.alignment = Word.Alignment.left;
+      apres.font.bold = false;
+      apres.font.name = 'Times New Roman';
+      apres.font.size = 12;
+
+      await ctx.sync();
+      setOk('Pièce n°\u00a0' + n + ' insérée');
+    });
+  } catch(e) { setErr('Erreur : ' + e.message); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PIECE_VIDE — Ctrl+Option+P
+// VBA : insère "Pièce n° N - " sans titre, droite, gras
+// ═══════════════════════════════════════════════════════════════
+async function piece_Vide() {
+  setRun('Insertion pièce vide…');
+  try {
+    await Word.run(async ctx => {
+      const n = await compterPiecesDocument(ctx) + 1;
+      const textePiece = PREFIX_PIE + n + SEP;
+
+      const sel = ctx.document.getSelection();
+      const nouvPara = sel.insertParagraph(textePiece, Word.InsertLocation.after);
+      nouvPara.alignment = Word.Alignment.right;
+      nouvPara.font.bold = true;
+      nouvPara.font.name = 'Times New Roman';
+      nouvPara.font.size = 12;
+
+      // Placer le curseur à la fin de la ligne (pour taper le titre)
+      nouvPara.getRange(Word.RangeLocation.end).select();
+
+      await ctx.sync();
+      setOk('Pièce n°\u00a0' + n + ' vide — tapez le titre');
+    });
+  } catch(e) { setErr('Erreur : ' + e.message); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PIECE_GENERER_BORDEREAU — Ctrl+Option+B
+// VBA : parcourt tous les §, détecte "Pi" + Chr(161),
+//       insère "BORDEREAU DE PIECES" centré + gras + liste
+// ═══════════════════════════════════════════════════════════════
+let _lignesBordereau = [];
+
+async function previsualiserBordereau() {
+  setRun('Lecture du document…');
+  try {
+    await Word.run(async ctx => {
+      const paras = ctx.document.body.paragraphs;
+      paras.load('items/text');
+      await ctx.sync();
+
+      _lignesBordereau = [];
+      for (const p of paras.items) {
+        const s = nettoyerTexte(p.text);
+        if (estLignePiece(s)) _lignesBordereau.push(s);
+      }
+
+      if (_lignesBordereau.length === 0) {
+        setErr('Aucune pièce trouvée dans le document');
+        return;
+      }
+
+      // Afficher la prévisualisation
+      const list = document.getElementById('bordereau-list');
+      list.innerHTML = '';
+      _lignesBordereau.forEach(ligne => {
+        const row = document.createElement('div');
+        row.className = 'bordereau-row';
+        row.textContent = ligne;
+        list.appendChild(row);
+      });
+
+      document.getElementById('bordereau-preview').classList.add('visible');
+      const nb = _lignesBordereau.length;
+      setOk('Bordereau prêt', nb + ' pièce' + (nb > 1 ? 's' : ''));
+    });
+  } catch(e) { setErr('Erreur : ' + e.message); }
+}
+
+function hideBordereau() {
+  document.getElementById('bordereau-preview').classList.remove('visible');
+  _lignesBordereau = [];
+}
+
+async function insererBordereau() {
+  if (!_lignesBordereau.length) return;
+  setRun('Insertion du bordereau…');
+  try {
+    await Word.run(async ctx => {
+      const sel = ctx.document.getSelection();
+
+      // "BORDEREAU DE PIECES" — centré, gras, Times 12
+      const titrePara = sel.insertParagraph('BORDEREAU DE PIECES', Word.InsertLocation.after);
+      titrePara.alignment = Word.Alignment.centered;
+      titrePara.font.bold = true;
+      titrePara.font.name = 'Times New Roman';
+      titrePara.font.size = 12;
+
+      // Ligne vide
+      let dernier = titrePara.insertParagraph('', Word.InsertLocation.after);
+      dernier.alignment = Word.Alignment.left;
+      dernier.font.bold = false;
+
+      // Chaque ligne de pièce (gauche, non gras)
+      for (const ligne of _lignesBordereau) {
+        const p = dernier.insertParagraph(ligne, Word.InsertLocation.after);
+        p.alignment = Word.Alignment.left;
+        p.font.bold = false;
+        p.font.name = 'Times New Roman';
+        p.font.size = 12;
+        dernier = p;
+      }
+
+      await ctx.sync();
+      hideBordereau();
+      const nb = _lignesBordereau.length;
+      setOk('Bordereau inséré', nb + ' pièce' + (nb > 1 ? 's' : ''));
+    });
+  } catch(e) { setErr('Erreur : ' + e.message); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENUMEROTATION_PIECES — Ctrl+Option+R
+// VBA : supprime tous les signets Piece_N, reparcourt tous les §,
+//       détecte Chr(161), lit l'ancien numéro, remplace par compteur,
+//       repose les signets.
+// En JS : même logique mais sans signets (non exposés en Office.js)
+// ═══════════════════════════════════════════════════════════════
+async function renumerotation_Pieces() {
+  setRun('Renumérotation en cours…');
+  try {
+    await Word.run(async ctx => {
+      const paras = ctx.document.body.paragraphs;
+      paras.load('items/text');
+      await ctx.sync();
+
+      let compteur = 0;
+      let modifs   = 0;
+
+      for (const p of paras.items) {
+        const s = nettoyerTexte(p.text);
+        if (!estLignePiece(s)) continue;
+
+        compteur++;
+        const ancienNum = extraireNumero(s);
+
+        if (ancienNum !== compteur) {
+          // Remplacer "n° ANCIEN" par "n° NOUVEAU" dans le texte brut
+          // (équivalent VBA : ActiveDocument.Range(debutR, finR).Text = nouveauStr)
+          const ancien  = 'n\u00b0 ' + ancienNum;
+          const nouveau = 'n\u00b0 ' + compteur;
+          const nouveauTexte = s.replace(ancien, nouveau);
+          p.insertText(nouveauTexte, Word.InsertLocation.replace);
+          modifs++;
+        }
+      }
+
+      await ctx.sync();
+
+      if (compteur === 0) {
+        setErr('Aucune pièce trouvée dans le document');
+      } else {
+        const msg = 'Renumérotation terminée';
+        const detail = compteur + ' pièce' + (compteur>1?'s':'') +
+                       (modifs ? ', ' + modifs + ' modifiée' + (modifs>1?'s':'') : ' — déjà en ordre');
+        setOk(msg, detail);
+      }
+    });
+  } catch(e) { setErr('Erreur : ' + e.message); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PARAGRAPHES — numérotation hiérarchique manuelle
+// Compatible Word Online, Mac, iPad
+// Compteurs internes, numéros insérés dans le texte
+// Équivalent ApplyLevel(level, continuePrev) VBA
+// ═══════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════
+// CONSTRUCTION DES BOUTONS DE NIVEAUX
+// ═══════════════════════════════════════════════════════════════
+function buildNiveauGrids() {
+  const gridStd  = document.getElementById('grid-std');
+  const gridCont = document.getElementById('grid-cont');
+  if (!gridStd || !gridCont) return;
+  const exemples = ['1.','1.1','1.1.1','1.1.1.1','1.1.1.1.1','1.1.1.1.1.1'];
+  for (let i = 1; i <= 6; i++) {
+    const btnStd = document.createElement('button');
+    btnStd.className = 'niveau-btn';
+    btnStd.innerHTML = '<span class="nb-num">' + i + '</span><span class="nb-label">' + exemples[i-1] + '</span>';
+    btnStd.onclick = (function(n){ return function(){ applyLevel(n, false); }; })(i);
+    gridStd.appendChild(btnStd);
+
+    const btnCont = document.createElement('button');
+    btnCont.className = 'niveau-btn cont';
+    btnCont.innerHTML = '<span class="nb-num">' + i + '</span><span class="nb-label">suite</span>';
+    btnCont.onclick = (function(n){ return function(){ applyLevel(n, true); }; })(i);
+    gridCont.appendChild(btnCont);
+  }
+}
+
+let _compteurs = [0, 0, 0, 0, 0, 0]; // compteurs niveaux 1-6
+
+function formaterNumero(niveau) {
+  let parts = [];
+  for (let i = 0; i < niveau; i++) parts.push(_compteurs[i]);
+  return parts.join('.') + (niveau === 1 ? '.' : '');
+}
+
+function extraireNumHier(texte) {
+  const m = texte.match(/^[\t ]*(\d+(?:\.\d+)*\.?)\s+/);
+  return m ? m[1] : null;
+}
+
+function retirerNumHier(texte) {
+  return texte.replace(/^[\t ]*\d+(?:\.\d+)*\.?\s+/, '').trim();
+}
+
+async function applyLevel(niveau, continuePrev) {
+  setRun((continuePrev ? 'Continuer N' : 'Niveau ') + niveau + '\u2026');
+  try {
+    await Word.run(async ctx => {
+      const sel = ctx.document.getSelection();
+      sel.paragraphs.load('items/text');
+      await ctx.sync();
+
+      if (sel.paragraphs.items.length === 0) {
+        setErr('Aucun paragraphe sélectionné'); return;
+      }
+
+      _compteurs[niveau - 1]++;
+      for (let i = niveau; i < 6; i++) _compteurs[i] = 0;
+
+      const num    = formaterNumero(niveau);
+      const indent = '\t'.repeat(niveau - 1);
+
+      for (const para of sel.paragraphs.items) {
+        const textepur = retirerNumHier(para.text) || para.text.trim();
+        para.insertText(indent + num + ' ' + textepur, Word.InsertLocation.replace);
+      }
+
+      await ctx.sync();
+      setOk('N' + niveau + ' appliqu\u00e9', num);
+    });
+  } catch(e) { setErr('Erreur\u00a0: ' + e.message); }
+}
+
+async function niveauMonter() {
+  setRun('Mont\u00e9e de niveau\u2026');
+  try {
+    await Word.run(async ctx => {
+      const sel = ctx.document.getSelection();
+      sel.paragraphs.load('items/text');
+      await ctx.sync();
+
+      for (const para of sel.paragraphs.items) {
+        const t   = para.text;
+        const num = extraireNumHier(t);
+        if (!num) continue;
+        const parties = num.replace(/\.$/, '').split('.');
+        if (parties.length <= 1) continue;
+        parties.pop();
+        const nouveauNum = parties.join('.') + (parties.length === 1 ? '.' : '');
+        const indent     = '\t'.repeat(parties.length - 1);
+        para.insertText(indent + nouveauNum + ' ' + retirerNumHier(t), Word.InsertLocation.replace);
+      }
+
+      await ctx.sync();
+      setOk('Niveau mont\u00e9');
+    });
+  } catch(e) { setErr('Erreur\u00a0: ' + e.message); }
+}
+
+async function niveauDescendre() {
+  setRun('Descente de niveau\u2026');
+  try {
+    await Word.run(async ctx => {
+      const sel = ctx.document.getSelection();
+      sel.paragraphs.load('items/text');
+      await ctx.sync();
+
+      for (const para of sel.paragraphs.items) {
+        const t   = para.text;
+        const num = extraireNumHier(t);
+        if (!num) continue;
+        const parties = num.replace(/\.$/, '').split('.');
+        if (parties.length >= 6) continue;
+        _compteurs[parties.length]++;
+        for (let i = parties.length + 1; i < 6; i++) _compteurs[i] = 0;
+        parties.push(String(_compteurs[parties.length - 1]));
+        const nouveauNum = parties.join('.');
+        const indent     = '\t'.repeat(parties.length - 1);
+        para.insertText(indent + nouveauNum + ' ' + retirerNumHier(t), Word.InsertLocation.replace);
+      }
+
+      await ctx.sync();
+      setOk('Niveau descendu');
+    });
+  } catch(e) { setErr('Erreur\u00a0: ' + e.message); }
+}
+
+async function clearNumbering() {
+  setRun('Suppression num\u00e9rotation\u2026');
+  try {
+    await Word.run(async ctx => {
+      const sel = ctx.document.getSelection();
+      sel.paragraphs.load('items/text');
+      await ctx.sync();
+
+      let count = 0;
+      for (const para of sel.paragraphs.items) {
+        if (extraireNumHier(para.text)) {
+          para.insertText(retirerNumHier(para.text) || para.text.trim(), Word.InsertLocation.replace);
+          count++;
+        }
+      }
+
+      await ctx.sync();
+      setOk('Num\u00e9rotation supprim\u00e9e', count + ' \u00a7');
+    });
+  } catch(e) { setErr('Erreur\u00a0: ' + e.message); }
+}
+
+</script>
+</body>
+</html>
 
 
 
