@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:type="TaskPaneApp">
+  <Id>a3f7c2d1-8e4b-4a9f-b5c6-1d2e3f4a5b6c</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>Cabinet Mizrahi</ProviderName>
+  <DefaultLocale>fr-FR</DefaultLocale>
+  <DisplayName DefaultValue="Pieces et Paragraphes Mizrahi"/>
+  <Description DefaultValue="Numerotation des pieces et paragraphes"/>
+  <IconUrl DefaultValue="https://wklm100.github.io/mizrahi-addin/icon-32.png"/>
+  <SupportUrl DefaultValue="https://wklm100.github.io/mizrahi-addin"/>
+  <AppDomains>
+    <AppDomain>https://wklm100.github.io</AppDomain>
+  </AppDomains>
+  <Hosts>
+    <Host Name="Document"/>
+  </Hosts>
+  <Requirements>
+    <Sets>
+      <Set Name="WordApi" MinVersion="1.3"/>
+    </Sets>
+  </Requirements>
+  <DefaultSettings>
+    <SourceLocation DefaultValue="https://wklm100.github.io/mizrahi-addin/taskpane.html"/>
+  </DefaultSettings>
+  <Permissions>ReadWriteDocument</Permissions>
+</OfficeApp>
